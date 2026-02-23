@@ -21,12 +21,14 @@ from models import (
     Discussion, DiscussionCreate,
     GovernanceAlert
 )
+from notification_models import Notification, NotificationCreate
 from auth import (
     get_password_hash,
     verify_password,
     create_access_token,
     get_current_user
 )
+from email_service import EmailService
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
