@@ -28,7 +28,7 @@ async def seed_data():
         {
             "id": "investor-1",
             "email": "investor@sri.com",
-            "password_hash": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7qK/Qa8j5i",
+            "password_hash": "$2b$12$IxhJKl16UGe/yWmq9mPA2O/qClFPBa2qSmACynUZcTaxshRVFtqYC",
             "full_name": "Sarah Investor",
             "role": "investor",
             "country": "US",
@@ -38,7 +38,7 @@ async def seed_data():
         {
             "id": "founder-1",
             "email": "founder@sri.com",
-            "password_hash": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7qK/Qa8j5i",
+            "password_hash": "$2b$12$IxhJKl16UGe/yWmq9mPA2O/qClFPBa2qSmACynUZcTaxshRVFtqYC",
             "full_name": "John Founder",
             "role": "business",
             "country": "US",
@@ -48,7 +48,7 @@ async def seed_data():
         {
             "id": "both-1",
             "email": "both@sri.com",
-            "password_hash": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7qK/Qa8j5i",
+            "password_hash": "$2b$12$IxhJKl16UGe/yWmq9mPA2O/qClFPBa2qSmACynUZcTaxshRVFtqYC",
             "full_name": "Alex Both",
             "role": "both",
             "country": "UK",
