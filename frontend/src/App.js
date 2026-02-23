@@ -14,6 +14,7 @@ import BankAccounts from './pages/BankAccounts';
 import ThesisEditor from './pages/ThesisEditor';
 import LiquidityWindowCreate from './pages/LiquidityWindowCreate';
 import ReferencePriceUpdate from './pages/ReferencePriceUpdate';
+import CompanyCreate from './pages/CompanyCreate';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
