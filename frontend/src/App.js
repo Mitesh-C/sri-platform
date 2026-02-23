@@ -11,6 +11,9 @@ import Governance from './pages/Governance';
 import InvestorDashboard from './pages/InvestorDashboard';
 import BusinessDashboard from './pages/BusinessDashboard';
 import BankAccounts from './pages/BankAccounts';
+import ThesisEditor from './pages/ThesisEditor';
+import LiquidityWindowCreate from './pages/LiquidityWindowCreate';
+import ReferencePriceUpdate from './pages/ReferencePriceUpdate';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
