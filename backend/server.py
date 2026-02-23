@@ -369,6 +369,28 @@ async def create_reference_price(
     price_dict['created_at'] = price_dict['created_at'].isoformat()
     
     await db.reference_prices.insert_one(price_dict)
+    
+    # Notify all investors of this thesis
+    investments = await db.investments.find({"thesis_id": price_data.thesis_id}, {"_id": 0}).to_list(1000)
+    investor_ids = set(inv['investor_id'] for inv in investments)
+    
+    for investor_id in investor_ids:
+        await create_notification(NotificationCreate(
+            user_id=investor_id,
+            type="price_update",
+            title="Reference Price Update",
+            message=f"Reference price updated: ${price.old_price or 'N/A'} → ${price.new_price}",
+            related_id=price.id
+        ))
+        
+        # Send email
+        user = await db.users.find_one({"id": investor_id})
+        if user:
+            await EmailService.send_price_update(
+                user['email'],
+                {"old_price": price.old_price, "new_price": price.new_price, "reason": price.reason}
+            )
+    
     return price
 
 @api_router.get("/reference-prices", response_model=List[ReferencePrice])
