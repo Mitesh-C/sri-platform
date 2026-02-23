@@ -309,6 +309,24 @@ async def create_recurring_investment(
     recurring_dict['next_run'] = recurring_dict['next_run'].isoformat()
     
     await db.recurring_investments.insert_one(recurring_dict)
+    
+    # Send notification
+    await create_notification(NotificationCreate(
+        user_id=current_user["id"],
+        type="recurring_created",
+        title="Recurring Investment Setup",
+        message=f"Your {recurring.frequency} investment of ${recurring.amount} has been set up.",
+        related_id=recurring.id
+    ))
+    
+    # Send email
+    user = await db.users.find_one({"id": current_user["id"]})
+    if user:
+        await EmailService.send_recurring_notification(
+            user['email'],
+            {"amount": recurring.amount, "frequency": recurring.frequency}
+        )
+    
     return recurring
 
 @api_router.get("/recurring-investments/my", response_model=List[RecurringInvestment])
