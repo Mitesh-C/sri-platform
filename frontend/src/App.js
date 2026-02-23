@@ -104,6 +104,15 @@ function AppContent() {
         />
         
         <Route
+          path="/business/company/new"
+          element={
+            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+              <CompanyCreate />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
           path="/settings/bank-accounts"
           element={
             <ProtectedRoute>
