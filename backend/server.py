@@ -238,6 +238,24 @@ async def create_investment(
     investment_dict['created_at'] = investment_dict['created_at'].isoformat()
     
     await db.investments.insert_one(investment_dict)
+    
+    # Send notification
+    await create_notification(NotificationCreate(
+        user_id=current_user["id"],
+        type="investment_created",
+        title="Investment Submitted",
+        message=f"Your investment of ${investment.amount} has been submitted successfully.",
+        related_id=investment.id
+    ))
+    
+    # Send email
+    user = await db.users.find_one({"id": current_user["id"]})
+    if user:
+        await EmailService.send_investment_confirmation(
+            user['email'],
+            {"amount": investment.amount, "investment_type": investment.investment_type}
+        )
+    
     return investment
 
 @api_router.get("/investments/my", response_model=List[Investment])
