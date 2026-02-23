@@ -67,6 +67,42 @@ function AppContent() {
         />
         
         <Route
+          path="/business/thesis/new"
+          element={
+            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+              <ThesisEditor />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/business/thesis/:id/edit"
+          element={
+            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+              <ThesisEditor />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/business/liquidity-window/new"
+          element={
+            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+              <LiquidityWindowCreate />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/business/reference-price/new"
+          element={
+            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+              <ReferencePriceUpdate />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
           path="/settings/bank-accounts"
           element={
             <ProtectedRoute>
