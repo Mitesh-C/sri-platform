@@ -1,0 +1,20 @@
+# Backend
+backend/__pycache__
+backend/*.pyc
+backend/.pytest_cache
+backend/venv
+backend/.venv
+
+# Frontend
+frontend/node_modules
+frontend/build
+frontend/.env.local
+
+# General
+.git
+.gitignore
+*.log
+.DS_Store
+test_reports
+scripts
+tests
