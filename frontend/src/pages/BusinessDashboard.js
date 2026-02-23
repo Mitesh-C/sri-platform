@@ -111,6 +111,14 @@ const BusinessDashboard = () => {
                   </div>
                 </Button>
               </Link>
+              <Link to="/business/reference-price/new">
+                <Button variant="outline" className="w-full h-20 rounded-xl justify-start text-left" data-testid="update-price-btn">
+                  <div>
+                    <p className="font-medium mb-1">Update Reference Price</p>
+                    <p className="text-sm text-muted-foreground">Submit event-based price update</p>
+                  </div>
+                </Button>
+              </Link>
             </div>
           </Card>
         </motion.div>
