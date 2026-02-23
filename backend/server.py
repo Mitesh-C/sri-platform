@@ -515,6 +515,101 @@ async def business_dashboard(current_user: dict = Depends(get_current_user)):
         "active_theses": len([t for t in theses if t.get('status') == 'active'])
     }
 
+# Analytics Routes
+@api_router.get("/analytics/investor/timeline")
+async def investor_timeline(current_user: dict = Depends(get_current_user)):
+    """Get investment timeline data for charts"""
+    if current_user["role"] not in ["investor", "both", "admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    investments = await db.investments.find(
+        {"investor_id": current_user["id"], "status": "completed"}, 
+        {"_id": 0}
+    ).to_list(1000)
+    
+    # Group by month
+    monthly_data = {}
+    for inv in investments:
+        created_at = inv['created_at']
+        if isinstance(created_at, str):
+            created_at = datetime.fromisoformat(created_at)
+        month_key = created_at.strftime('%Y-%m')
+        if month_key not in monthly_data:
+            monthly_data[month_key] = 0
+        monthly_data[month_key] += inv['amount']
+    
+    # Convert to list format for charts
+    timeline = [{"month": k, "amount": v} for k, v in sorted(monthly_data.items())]
+    return timeline
+
+@api_router.get("/analytics/business/timeline")
+async def business_timeline(current_user: dict = Depends(get_current_user)):
+    """Get capital raised timeline for charts"""
+    if current_user["role"] not in ["business", "both", "admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    companies = await db.companies.find({"created_by": current_user["id"]}, {"_id": 0}).to_list(1000)
+    company_ids = [c['id'] for c in companies]
+    
+    theses = await db.theses.find({"company_id": {"$in": company_ids}}, {"_id": 0}).to_list(1000)
+    thesis_ids = [t['id'] for t in theses]
+    
+    investments = await db.investments.find(
+        {"thesis_id": {"$in": thesis_ids}, "status": "completed"}, 
+        {"_id": 0}
+    ).to_list(1000)
+    
+    # Group by month
+    monthly_data = {}
+    for inv in investments:
+        created_at = inv['created_at']
+        if isinstance(created_at, str):
+            created_at = datetime.fromisoformat(created_at)
+        month_key = created_at.strftime('%Y-%m')
+        if month_key not in monthly_data:
+            monthly_data[month_key] = 0
+        monthly_data[month_key] += inv['amount']
+    
+    # Convert to list format for charts
+    timeline = [{"month": k, "amount": v} for k, v in sorted(monthly_data.items())]
+    return timeline
+
+# Notification Routes
+@api_router.get("/notifications/my", response_model=List[Notification])
+async def my_notifications(current_user: dict = Depends(get_current_user)):
+    """Get user notifications"""
+    notifications = await db.notifications.find(
+        {"user_id": current_user["id"]}, {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    for n in notifications:
+        if isinstance(n['created_at'], str):
+            n['created_at'] = datetime.fromisoformat(n['created_at'])
+    
+    return notifications
+
+@api_router.patch("/notifications/{notification_id}/read")
+async def mark_notification_read(
+    notification_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Mark notification as read"""
+    result = await db.notifications.update_one(
+        {"id": notification_id, "user_id": current_user["id"]},
+        {"$set": {"read": True}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return {"success": True}
+
+async def create_notification(notification: NotificationCreate):
+    """Helper to create notifications"""
+    notif = Notification(**notification.model_dump())
+    notif_dict = notif.model_dump()
+    notif_dict['created_at'] = notif_dict['created_at'].isoformat()
+    await db.notifications.insert_one(notif_dict)
+    return notif
+
 app.include_router(api_router)
 
 app.add_middleware(
