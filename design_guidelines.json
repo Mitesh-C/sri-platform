@@ -1,0 +1,165 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "Sri by Mahakali Tribunal",
+      "personality": "Calm, Architectural, Governance-First, Long-Term, Premium Ledger",
+      "archetype": "The Enlightened Institution",
+      "user_choices": {
+        "theme": "Light Mode Dominant (with Dark Toggle)",
+        "accent": "Deep Purple (#5B21B6)",
+        "tone": "Calm, Governance, No-Speculation",
+        "shapes": "Rounded Corners (rounded-2xl), Soft Shadows",
+        "layout": "Card-based, Whitespace-heavy"
+      }
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Fraunces, serif",
+        "body": "Outfit, sans-serif",
+        "data": "JetBrains Mono, monospace"
+      },
+      "scale": {
+        "h1": "text-5xl md:text-7xl font-light tracking-tight leading-tight",
+        "h2": "text-4xl md:text-5xl font-light tracking-tight",
+        "h3": "text-2xl md:text-3xl font-normal",
+        "body_lg": "text-lg leading-relaxed text-muted-foreground",
+        "body_base": "text-base leading-relaxed text-foreground",
+        "caption": "text-sm font-medium tracking-wide uppercase text-muted-foreground",
+        "data": "font-mono text-sm tracking-tight"
+      },
+      "imports": [
+        "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;500;600&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      ]
+    },
+    "colors": {
+      "light": {
+        "background": "#F9FAFB",
+        "foreground": "#111827",
+        "card": "#FFFFFF",
+        "card_foreground": "#111827",
+        "popover": "#FFFFFF",
+        "popover_foreground": "#111827",
+        "primary": "#5B21B6",
+        "primary_foreground": "#FFFFFF",
+        "secondary": "#F3F4F6",
+        "secondary_foreground": "#1F2937",
+        "muted": "#F3F4F6",
+        "muted_foreground": "#6B7280",
+        "accent": "#EDE9FE",
+        "accent_foreground": "#5B21B6",
+        "destructive": "#EF4444",
+        "destructive_foreground": "#FFFFFF",
+        "border": "#E5E7EB",
+        "input": "#E5E7EB",
+        "ring": "#5B21B6"
+      },
+      "dark": {
+        "background": "#09090B",
+        "foreground": "#FAFAFA",
+        "card": "#18181B",
+        "card_foreground": "#FAFAFA",
+        "popover": "#18181B",
+        "popover_foreground": "#FAFAFA",
+        "primary": "#7C3AED",
+        "primary_foreground": "#FAFAFA",
+        "secondary": "#27272A",
+        "secondary_foreground": "#FAFAFA",
+        "muted": "#27272A",
+        "muted_foreground": "#A1A1AA",
+        "accent": "#2E1065",
+        "accent_foreground": "#FAFAFA",
+        "destructive": "#7F1D1D",
+        "destructive_foreground": "#FAFAFA",
+        "border": "#27272A",
+        "input": "#27272A",
+        "ring": "#7C3AED"
+      }
+    },
+    "visual_enhancers": {
+      "radius": "rounded-xl md:rounded-2xl",
+      "shadows": {
+        "soft": "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
+        "float": "0 10px 40px -10px rgba(76, 29, 149, 0.1)",
+        "inner": "inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)"
+      },
+      "borders": "border border-border/50",
+      "glass": "bg-white/80 dark:bg-black/80 backdrop-blur-xl border-white/20"
+    },
+    "layout_strategies": {
+      "spacing_scale": "relaxed",
+      "container_padding": "px-6 md:px-12 lg:px-24",
+      "section_gap": "gap-12 md:gap-24",
+      "grid_patterns": [
+        "The Architectural Grid: grid-cols-12 gap-8",
+        "The Ledger List: flex-col divide-y divide-border",
+        "The Gallery: grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      ]
+    },
+    "components": {
+      "buttons": {
+        "primary": "bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 font-medium transition-transform active:scale-95",
+        "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full px-6 py-4 font-medium",
+        "outline": "border-2 border-primary/20 text-primary hover:bg-primary/5 rounded-full px-6 py-4 font-medium",
+        "ghost": "hover:bg-accent hover:text-accent-foreground rounded-lg px-4 py-2"
+      },
+      "cards": {
+        "thesis": "group relative overflow-hidden rounded-2xl bg-card border border-border/50 shadow-soft hover:shadow-float transition-all duration-500",
+        "ledger": "flex items-center justify-between p-6 bg-card border-b border-border/40 hover:bg-muted/30 transition-colors",
+        "stat": "flex flex-col gap-2 p-8 rounded-2xl bg-muted/30 border border-border/20"
+      },
+      "inputs": "h-12 rounded-xl border-input bg-background px-4 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    },
+    "assets": {
+      "images": {
+        "hero_background": "https://images.unsplash.com/photo-1563949708631-963ad2447fa8?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "auth_background": "https://images.unsplash.com/photo-1694303165593-f9b9812f212a?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "categories": {
+          "energy": "https://images.unsplash.com/photo-1756913455724-6b3a2ae0130b?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "biotech": "https://images.unsplash.com/photo-1705727210721-961cc64a6895?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "agriculture": "https://images.unsplash.com/photo-1771131826047-f2f32bd24dac?crop=entropy&cs=srgb&fm=jpg&q=85",
+          "governance": "https://images.pexels.com/photos/8709504/pexels-photo-8709504.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+        },
+        "avatars": [
+          "https://images.pexels.com/photos/30004320/pexels-photo-30004320.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "https://images.pexels.com/photos/18279200/pexels-photo-18279200.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+        ]
+      },
+      "icons": "Use lucide-react for all UI icons. Use thin strokes (stroke-width={1.5}) for elegance."
+    },
+    "motion": {
+      "page_transition": {
+        "initial": { "opacity": 0, "y": 20 },
+        "animate": { "opacity": 1, "y": 0 },
+        "exit": { "opacity": 0, "y": -20 },
+        "transition": { "duration": 0.4, "ease": [0.22, 1, 0.36, 1] }
+      },
+      "micro_interactions": {
+        "hover_lift": "hover:-translate-y-1 transition-transform duration-300",
+        "button_press": "active:scale-95 transition-transform duration-100"
+      }
+    }
+  },
+  "implementation_plan": {
+    "phase_1_setup": [
+      "Install dependencies: lucide-react, framer-motion, sonner, recharts, date-fns, clsx, tailwind-merge",
+      "Configure Tailwind theme with new colors and radius",
+      "Add fonts to index.css"
+    ],
+    "phase_2_components": [
+      "Customize Shadcn components (Card, Button, Input, Table) to match 'rounded-2xl' and 'soft shadow' style",
+      "Build custom 'ThesisCard' and 'LiquidityWindow' components"
+    ],
+    "phase_3_pages": [
+      "Landing Page: Hero with 'Sit with the future' using Hero Image",
+      "Explore: Grid of Thesis Cards",
+      "Dashboard: Tabbed interface (Overview, Investments, Governance) using 'Calm Control Panel' layout"
+    ]
+  },
+  "universal_guidelines": [
+    "DO NOT use gradients for text or buttons. Solid colors only.",
+    "DO NOT use 'Inter' for Headings. Use 'Fraunces'.",
+    "Ensure 3x spacing (p-6, p-8, p-12) everywhere.",
+    "Bank linking must be text-only inputs, no 'Plaid' style flashy widgets.",
+    "All interactive elements must have data-testid attributes."
+  ]
+}
