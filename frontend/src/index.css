@@ -62,3 +62,14 @@
     @apply font-sans;
   }
 }
+
+/* Hide Emergent branding */
+[class*="emergent"],
+[id*="emergent"],
+a[href*="emergentagent.com"],
+div[style*="position: fixed"],
+div[style*="z-index: 9999"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}

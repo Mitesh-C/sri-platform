@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from './components/ui/sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Landing from './pages/Landing';
 import Auth from './pages/Auth';
 import Explore from './pages/Explore';
@@ -40,98 +41,101 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 function AppContent() {
   return (
-    <div className="App">
+    <div className="App flex flex-col min-h-screen">
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/thesis/:id" element={<ThesisDetail />} />
-        <Route path="/governance" element={<Governance />} />
-        
-        <Route
-          path="/investor/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={['investor', 'both', 'admin']}>
-              <InvestorDashboard />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/business/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
-              <BusinessDashboard />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/business/thesis/new"
-          element={
-            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
-              <ThesisEditor />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/business/thesis/:id/edit"
-          element={
-            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
-              <ThesisEditor />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/business/liquidity-window/new"
-          element={
-            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
-              <LiquidityWindowCreate />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/business/reference-price/new"
-          element={
-            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
-              <ReferencePriceUpdate />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/business/company/new"
-          element={
-            <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
-              <CompanyCreate />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/settings/bank-accounts"
-          element={
-            <ProtectedRoute>
-              <BankAccounts />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/settings/profile"
-          element={
-            <ProtectedRoute>
-              <div className="min-h-screen py-12 flex items-center justify-center">
-                <p className="text-muted-foreground">Profile page coming soon</p>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+      <div className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/thesis/:id" element={<ThesisDetail />} />
+          <Route path="/governance" element={<Governance />} />
+          
+          <Route
+            path="/investor/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['investor', 'both', 'admin']}>
+                <InvestorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/business/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+                <BusinessDashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/business/thesis/new"
+            element={
+              <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+                <ThesisEditor />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/business/thesis/:id/edit"
+            element={
+              <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+                <ThesisEditor />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/business/liquidity-window/new"
+            element={
+              <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+                <LiquidityWindowCreate />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/business/reference-price/new"
+            element={
+              <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+                <ReferencePriceUpdate />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/business/company/new"
+            element={
+              <ProtectedRoute allowedRoles={['business', 'both', 'admin']}>
+                <CompanyCreate />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/settings/bank-accounts"
+            element={
+              <ProtectedRoute>
+                <BankAccounts />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/settings/profile"
+            element={
+              <ProtectedRoute>
+                <div className="min-h-screen py-12 flex items-center justify-center">
+                  <p className="text-muted-foreground">Profile page coming soon</p>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </div>
+      <Footer />
       <Toaster />
     </div>
   );

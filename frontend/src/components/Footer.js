@@ -1,0 +1,33 @@
+import React from 'react';
+import { Mail } from 'lucide-react';
+
+const Footer = () => {
+  return (
+    <footer className="border-t border-border/50 bg-background py-8 mt-auto">
+      <div className="container mx-auto px-6 md:px-12 lg:px-24">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          {/* Left side - Brand name */}
+          <div className="text-center md:text-left">
+            <h3 className="font-sans text-xl md:text-2xl font-medium text-foreground">
+              Sri by Mahakali Tribunal
+            </h3>
+          </div>
+
+          {/* Right side - Contact */}
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Mail className="h-4 w-4" strokeWidth={1.5} />
+            <span className="text-sm md:text-base">Contact us:</span>
+            <a 
+              href="mailto:hello@mahakalitribunal.com" 
+              className="text-sm md:text-base text-primary hover:underline transition-colors"
+            >
+              hello@mahakalitribunal.com
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
