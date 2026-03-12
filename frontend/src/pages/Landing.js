@@ -23,11 +23,11 @@ const Landing = () => {
             transition={{ duration: 0.6 }}
             className="max-w-4xl"
           >
-            <h1 className="font-serif text-5xl md:text-7xl font-light tracking-tight leading-tight mb-8" data-testid="hero-heading">
-              Sit with the future.
+            <h1 className="font-sans text-5xl md:text-7xl font-semibold tracking-tight leading-tight mb-8" data-testid="hero-heading">
+              Welcome to Sri
             </h1>
             <p className="text-lg md:text-xl leading-relaxed text-muted-foreground mb-12 max-w-2xl" data-testid="hero-subtitle">
-              A governed startup ownership platform built for long-term investors and responsible founders. Not a trading app. Not a wallet. A ledger of commitment.
+              Leading Capital Formation Tool of the 21st Century.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link to="/explore">

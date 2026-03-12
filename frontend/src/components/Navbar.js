@@ -18,8 +18,8 @@ const Navbar = () => {
       <div className="container mx-auto px-6 md:px-12 lg:px-24">
         <div className="flex h-20 items-center justify-between">
           <Link to="/" className="flex items-center space-x-3">
-            <Building2 className="h-8 w-8 text-primary" strokeWidth={1.5} />
-            <span className="font-serif text-2xl font-light tracking-tight">Sri</span>
+            <img src="/sri-logo.jpeg" alt="Sri Logo" className="h-10 w-10 rounded-lg object-cover" />
+            <span className="font-sans text-2xl font-medium tracking-tight">Sri</span>
           </Link>
 
           <div className="flex items-center gap-6">
@@ -29,7 +29,7 @@ const Navbar = () => {
                   <Button variant="ghost" data-testid="nav-explore">Explore</Button>
                 </Link>
                 <Link to="/governance">
-                  <Button variant="ghost" data-testid="nav-governance">Governance</Button>
+                  <Button variant="ghost" data-testid="nav-governance">How It Works</Button>
                 </Link>
                 {(user.role === 'investor' || user.role === 'both') && (
                   <Link to="/investor/dashboard">
@@ -56,7 +56,7 @@ const Navbar = () => {
                   <Button variant="ghost" data-testid="nav-explore-public">Explore</Button>
                 </Link>
                 <Link to="/governance">
-                  <Button variant="ghost" data-testid="nav-governance-public">Governance</Button>
+                  <Button variant="ghost" data-testid="nav-governance-public">How It Works</Button>
                 </Link>
                 <Link to="/auth">
                   <Button className="rounded-full" data-testid="nav-signin">Sign In</Button>
