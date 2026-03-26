@@ -4,7 +4,7 @@ from datetime import datetime
 import json
 
 class SriBackendTester:
-    def __init__(self, base_url="https://long-term-owned.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://tribunal-invest.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0

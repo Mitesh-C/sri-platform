@@ -26,6 +26,8 @@ from auth import (
     get_password_hash,
     verify_password,
     create_access_token,
+    create_verification_token,
+    verify_verification_token,
     get_current_user
 )
 from email_service import EmailService
@@ -105,6 +107,44 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         user_doc['created_at'] = datetime.fromisoformat(user_doc['created_at'])
     
     return User(**user_doc)
+
+@api_router.post("/auth/send-verification")
+async def send_verification_email(current_user: dict = Depends(get_current_user)):
+    """Send email verification link"""
+    user = await db.users.find_one({"id": current_user["id"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.get('email_verified'):
+        raise HTTPException(status_code=400, detail="Email already verified")
+    
+    # Create verification token
+    verification_token = create_verification_token(user['email'])
+    verification_link = f"http://localhost:3000/verify-email?token={verification_token}"
+    
+    # Send email (logged for now, can integrate real email service)
+    logger.info(f"[EMAIL] Verification link for {user['email']}: {verification_link}")
+    await EmailService.send_email_verification(user['email'], verification_link)
+    
+    return {"message": "Verification email sent"}
+
+@api_router.get("/auth/verify-email/{token}")
+async def verify_email(token: str):
+    """Verify email with token"""
+    email = verify_verification_token(token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    
+    # Update user email_verified status
+    result = await db.users.update_one(
+        {"email": email},
+        {"$set": {"email_verified": True}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "Email verified successfully"}
 
 # Company Routes
 @api_router.post("/companies", response_model=Company)

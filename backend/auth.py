@@ -29,6 +29,24 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def create_verification_token(email: str):
+    """Create email verification token"""
+    expire = datetime.now(timezone.utc) + timedelta(hours=24)
+    to_encode = {"sub": email, "exp": expire, "type": "email_verification"}
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def verify_verification_token(token: str):
+    """Verify email verification token"""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        token_type: str = payload.get("type")
+        if email is None or token_type != "email_verification":
+            return None
+        return email
+    except JWTError:
+        return None
+
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

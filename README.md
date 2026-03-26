@@ -231,8 +231,8 @@ cd /app/frontend
 ```
 
 ### Access
-- **Frontend**: https://long-term-owned.preview.emergentagent.com
-- **Backend API**: https://long-term-owned.preview.emergentagent.com/api
+- **Frontend**: https://tribunal-invest.preview.emergentagent.com
+- **Backend API**: https://tribunal-invest.preview.emergentagent.com/api
 
 ## 🎯 Key Features
 

@@ -10,6 +10,17 @@ EMAIL_FROM = os.environ.get("EMAIL_FROM", "noreply@sri.com")
 
 class EmailService:
     @staticmethod
+    async def send_email_verification(user_email: str, verification_link: str):
+        """Send email verification link"""
+        if not EMAIL_ENABLED:
+            logger.info(f"[EMAIL PLACEHOLDER] Verification email to {user_email}")
+            logger.info(f"  Verification link: {verification_link}")
+            return
+        
+        # TODO: Integrate with actual email service
+        pass
+    
+    @staticmethod
     async def send_investment_confirmation(user_email: str, investment_data: dict):
         """Send investment confirmation email"""
         if not EMAIL_ENABLED:

@@ -16,6 +16,7 @@ import ThesisEditor from './pages/ThesisEditor';
 import LiquidityWindowCreate from './pages/LiquidityWindowCreate';
 import ReferencePriceUpdate from './pages/ReferencePriceUpdate';
 import CompanyCreate from './pages/CompanyCreate';
+import Profile from './pages/Profile';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -127,9 +128,7 @@ function AppContent() {
             path="/settings/profile"
             element={
               <ProtectedRoute>
-                <div className="min-h-screen py-12 flex items-center justify-center">
-                  <p className="text-muted-foreground">Profile page coming soon</p>
-                </div>
+                <Profile />
               </ProtectedRoute>
             }
           />
