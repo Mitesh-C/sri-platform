@@ -18,7 +18,7 @@ const Governance = () => {
               <Shield className="h-10 w-10 text-primary" strokeWidth={1.5} />
             </div>
             <h1 className="font-serif text-5xl md:text-6xl font-light tracking-tight mb-6" data-testid="governance-heading">
-              Governance Charter
+              How It Works
             </h1>
             <p className="text-lg leading-relaxed text-muted-foreground">
               The foundation of Sri: transparent rules, investor protection, and founder responsibility.

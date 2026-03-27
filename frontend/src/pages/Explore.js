@@ -6,8 +6,9 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import api from '../lib/api';
-import { Search, Filter, ArrowRight } from 'lucide-react';
+import { Search, Filter, ArrowRight, Plus, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
 
 const Explore = () => {
   const [theses, setTheses] = useState([]);
@@ -18,6 +19,7 @@ const Explore = () => {
     industry: 'all',
     geography: 'all'
   });
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,11 +79,29 @@ const Explore = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <h1 className="font-serif text-5xl md:text-6xl font-light tracking-tight mb-6" data-testid="explore-heading">
-            Investment Theses
-          </h1>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h1 className="font-serif text-5xl md:text-6xl font-light tracking-tight" data-testid="explore-heading">
+              Investment Thesis
+            </h1>
+            {user && (user.role === 'business' || user.role === 'both' || user.role === 'admin') && (
+              <div className="flex gap-3">
+                <Link to="/business/thesis/new">
+                  <Button className="rounded-full" data-testid="create-thesis-cta">
+                    <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
+                    Create Thesis
+                  </Button>
+                </Link>
+                <Link to="/business/company/new">
+                  <Button variant="outline" className="rounded-full" data-testid="create-company-cta">
+                    <Building2 className="h-4 w-4 mr-2" strokeWidth={1.5} />
+                    Create Company
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
           <p className="text-lg leading-relaxed text-muted-foreground mb-12 max-w-2xl">
-            Explore long-form investment theses from startups seeking aligned, long-term investors.
+            Explore long-form investment thesis from startups seeking aligned, long-term investors.
           </p>
 
           {/* Filters */}

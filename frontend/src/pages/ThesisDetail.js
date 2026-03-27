@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../components/ui/separator';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
-import { AlertTriangle, Building2, MapPin, TrendingUp, Shield, MessageCircle } from 'lucide-react';
+import { AlertTriangle, Building2, MapPin, TrendingUp, Shield, MessageCircle, Video, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ThesisDetail = () => {
@@ -170,6 +170,64 @@ const ThesisDetail = () => {
                 <p className="text-base leading-relaxed whitespace-pre-wrap text-muted-foreground">{thesis.risks}</p>
               </div>
             </Card>
+
+            {/* Video */}
+            {thesis.video_url && (
+              <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="video-card">
+                <div className="flex items-center gap-3 mb-6">
+                  <Video className="h-6 w-6 text-primary" strokeWidth={1.5} />
+                  <h2 className="font-serif text-3xl font-normal">Video</h2>
+                </div>
+                <div className="aspect-video rounded-xl overflow-hidden bg-muted">
+                  {thesis.video_url.includes('youtube.com') || thesis.video_url.includes('youtu.be') ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${thesis.video_url.includes('youtu.be') ? thesis.video_url.split('/').pop() : new URLSearchParams(new URL(thesis.video_url).search).get('v')}`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title="Thesis Video"
+                      data-testid="video-embed"
+                    />
+                  ) : thesis.video_url.includes('vimeo.com') ? (
+                    <iframe
+                      src={`https://player.vimeo.com/video/${thesis.video_url.split('/').pop()}`}
+                      className="w-full h-full"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      title="Thesis Video"
+                      data-testid="video-embed"
+                    />
+                  ) : (
+                    <video controls className="w-full h-full" data-testid="video-player">
+                      <source src={thesis.video_url} />
+                    </video>
+                  )}
+                </div>
+              </Card>
+            )}
+
+            {/* Pitch Deck */}
+            {thesis.pitch_deck_url && (
+              <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="pitch-deck-card">
+                <div className="flex items-center gap-3 mb-6">
+                  <FileDown className="h-6 w-6 text-primary" strokeWidth={1.5} />
+                  <h2 className="font-serif text-3xl font-normal">Pitch Deck</h2>
+                </div>
+                <a
+                  href={thesis.pitch_deck_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-6 py-4 rounded-xl border border-border/50 hover:bg-muted/30 transition-colors"
+                  data-testid="pitch-deck-link"
+                >
+                  <FileDown className="h-5 w-5 text-primary" strokeWidth={1.5} />
+                  <div>
+                    <p className="font-medium">View Pitch Deck</p>
+                    <p className="text-sm text-muted-foreground">Open PDF in new tab</p>
+                  </div>
+                </a>
+              </Card>
+            )}
 
             {/* SAFE Structure */}
             <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="safe-structure-card">

@@ -9,7 +9,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import api from '../lib/api';
 import { toast } from 'sonner';
-import { FileText, Plus, Trash2 } from 'lucide-react';
+import { FileText, Plus, Trash2, Video, FileDown } from 'lucide-react';
 
 const ThesisEditor = () => {
   const { id } = useParams();
@@ -25,7 +25,9 @@ const ThesisEditor = () => {
     industry: '',
     geography: '',
     stage: 'Pre-seed',
-    status: 'draft'
+    status: 'draft',
+    video_url: '',
+    pitch_deck_url: ''
   });
   const [safeFields, setSafeFields] = useState([
     { key: 'valuation_cap', value: '' },
@@ -62,7 +64,9 @@ const ThesisEditor = () => {
         industry: thesis.industry,
         geography: thesis.geography,
         stage: thesis.stage,
-        status: thesis.status
+        status: thesis.status,
+        video_url: thesis.video_url || '',
+        pitch_deck_url: thesis.pitch_deck_url || ''
       });
       
       if (thesis.safe_structure) {
@@ -101,6 +105,9 @@ const ThesisEditor = () => {
       });
 
       const payload = { ...formData, safe_structure };
+      // Clean empty optional fields
+      if (!payload.video_url) delete payload.video_url;
+      if (!payload.pitch_deck_url) delete payload.pitch_deck_url;
 
       if (id) {
         await api.put(`/theses/${id}`, payload);
@@ -274,6 +281,44 @@ const ThesisEditor = () => {
                       className="min-h-[200px] rounded-xl"
                       placeholder="Technology risk, market risk, competition, liquidity risk, regulatory risk..."
                     />
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8">
+                <h2 className="font-serif text-3xl font-normal mb-8">Media & Documents</h2>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="video_url" className="flex items-center gap-2">
+                      <Video className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                      Video URL
+                    </Label>
+                    <Input
+                      id="video_url"
+                      data-testid="input-video-url"
+                      value={formData.video_url}
+                      onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                      className="h-12 rounded-xl"
+                      placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                    />
+                    <p className="text-xs text-muted-foreground">Paste a YouTube or Vimeo link to embed a video in your thesis</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="pitch_deck_url" className="flex items-center gap-2">
+                      <FileDown className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                      Pitch Deck PDF URL
+                    </Label>
+                    <Input
+                      id="pitch_deck_url"
+                      data-testid="input-pitch-deck-url"
+                      value={formData.pitch_deck_url}
+                      onChange={(e) => setFormData({ ...formData, pitch_deck_url: e.target.value })}
+                      className="h-12 rounded-xl"
+                      placeholder="https://drive.google.com/file/d/... or direct PDF link"
+                    />
+                    <p className="text-xs text-muted-foreground">Link to your pitch deck PDF for investors to review</p>
                   </div>
                 </div>
               </Card>

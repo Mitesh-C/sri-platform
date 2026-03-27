@@ -86,7 +86,7 @@ const BusinessDashboard = () => {
                   <FileText className="h-6 w-6 text-primary" strokeWidth={1.5} />
                 </div>
               </div>
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">Active Theses</p>
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">Active Thesis</p>
               <p className="font-mono text-3xl font-medium">{stats.active_theses}</p>
             </Card>
           </div>

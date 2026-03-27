@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
@@ -38,6 +38,7 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 app = FastAPI(title="Sri by Mahakali Tribunal API")
 api_router = APIRouter(prefix="/api")
@@ -70,6 +71,12 @@ async def signup(user_data: UserCreate):
     user_dict['created_at'] = user_dict['created_at'].isoformat()
     
     await db.users.insert_one(user_dict)
+    
+    # Send verification email
+    verification_token = create_verification_token(user.email)
+    verification_link = f"{FRONTEND_URL}/verify-email?token={verification_token}"
+    logger.info(f"[SIGNUP] Verification link for {user.email}: {verification_link}")
+    await EmailService.send_email_verification(user.email, verification_link)
     
     access_token = create_access_token(
         data={"sub": user.id, "email": user.email, "role": user.role}
@@ -120,7 +127,7 @@ async def send_verification_email(current_user: dict = Depends(get_current_user)
     
     # Create verification token
     verification_token = create_verification_token(user['email'])
-    verification_link = f"http://localhost:3000/verify-email?token={verification_token}"
+    verification_link = f"{FRONTEND_URL}/verify-email?token={verification_token}"
     
     # Send email (logged for now, can integrate real email service)
     logger.info(f"[EMAIL] Verification link for {user['email']}: {verification_link}")
@@ -707,6 +714,123 @@ async def create_notification(notification: NotificationCreate):
     notif_dict['created_at'] = notif_dict['created_at'].isoformat()
     await db.notifications.insert_one(notif_dict)
     return notif
+
+# Payment Routes (Razorpay)
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
+RAZORPAY_ENABLED = bool(RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET)
+
+if RAZORPAY_ENABLED:
+    import razorpay
+    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+else:
+    razorpay_client = None
+    logger.info("[RAZORPAY] Not configured - payment features disabled")
+
+@api_router.get("/payments/config")
+async def payment_config():
+    """Return Razorpay public key for frontend"""
+    return {
+        "enabled": RAZORPAY_ENABLED,
+        "key_id": RAZORPAY_KEY_ID if RAZORPAY_ENABLED else None,
+        "currency": "INR"
+    }
+
+@api_router.post("/payments/create-order")
+async def create_payment_order(
+    amount: int,
+    purpose: str = "investment",
+    thesis_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a Razorpay order for payment"""
+    if not RAZORPAY_ENABLED:
+        raise HTTPException(status_code=503, detail="Payment gateway not configured")
+    
+    try:
+        order_data = {
+            "amount": amount,  # Amount in paise
+            "currency": "INR",
+            "payment_capture": 1,
+            "notes": {
+                "user_id": current_user["id"],
+                "purpose": purpose,
+                "thesis_id": thesis_id or ""
+            }
+        }
+        order = razorpay_client.order.create(data=order_data)
+        
+        # Store order in DB
+        payment_record = {
+            "id": order["id"],
+            "user_id": current_user["id"],
+            "amount": amount,
+            "currency": "INR",
+            "purpose": purpose,
+            "thesis_id": thesis_id,
+            "status": "created",
+            "razorpay_order_id": order["id"],
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.payments.insert_one(payment_record)
+        
+        return {
+            "order_id": order["id"],
+            "amount": order["amount"],
+            "currency": order["currency"],
+            "key_id": RAZORPAY_KEY_ID
+        }
+    except Exception as e:
+        logger.error(f"[RAZORPAY] Order creation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create payment order")
+
+@api_router.post("/payments/verify")
+async def verify_payment(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Verify Razorpay payment signature"""
+    if not RAZORPAY_ENABLED:
+        raise HTTPException(status_code=503, detail="Payment gateway not configured")
+    
+    body = await request.json()
+    razorpay_order_id = body.get("razorpay_order_id")
+    razorpay_payment_id = body.get("razorpay_payment_id")
+    razorpay_signature = body.get("razorpay_signature")
+    
+    try:
+        razorpay_client.utility.verify_payment_signature({
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature
+        })
+        
+        # Update payment status
+        await db.payments.update_one(
+            {"razorpay_order_id": razorpay_order_id},
+            {"$set": {
+                "status": "completed",
+                "razorpay_payment_id": razorpay_payment_id,
+                "completed_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        return {"status": "success", "message": "Payment verified successfully"}
+    except Exception as e:
+        logger.error(f"[RAZORPAY] Verification failed: {str(e)}")
+        await db.payments.update_one(
+            {"razorpay_order_id": razorpay_order_id},
+            {"$set": {"status": "failed"}}
+        )
+        raise HTTPException(status_code=400, detail="Payment verification failed")
+
+@api_router.get("/payments/my")
+async def my_payments(current_user: dict = Depends(get_current_user)):
+    """Get user's payment history"""
+    payments = await db.payments.find(
+        {"user_id": current_user["id"]}, {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    return payments
 
 app.include_router(api_router)
 

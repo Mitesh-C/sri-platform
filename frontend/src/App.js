@@ -17,6 +17,8 @@ import LiquidityWindowCreate from './pages/LiquidityWindowCreate';
 import ReferencePriceUpdate from './pages/ReferencePriceUpdate';
 import CompanyCreate from './pages/CompanyCreate';
 import Profile from './pages/Profile';
+import Pricing from './pages/Pricing';
+import VerifyEmail from './pages/VerifyEmail';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -51,6 +53,8 @@ function AppContent() {
           <Route path="/explore" element={<Explore />} />
           <Route path="/thesis/:id" element={<ThesisDetail />} />
           <Route path="/governance" element={<Governance />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           
           <Route
             path="/investor/dashboard"

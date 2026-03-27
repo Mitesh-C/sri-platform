@@ -55,6 +55,8 @@ class ThesisCreate(BaseModel):
     industry: str
     geography: str
     stage: str
+    video_url: Optional[str] = None
+    pitch_deck_url: Optional[str] = None
 
 class Thesis(ThesisCreate):
     model_config = ConfigDict(extra="ignore")

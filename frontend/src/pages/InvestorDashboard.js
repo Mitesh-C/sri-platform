@@ -122,7 +122,7 @@ const InvestorDashboard = () => {
                   <div className="text-center py-12" data-testid="investments-empty">
                     <p className="text-muted-foreground mb-4">No investments yet</p>
                     <Link to="/explore">
-                      <Button className="rounded-full" data-testid="explore-theses-cta">Explore Theses</Button>
+                      <Button className="rounded-full" data-testid="explore-theses-cta">Explore Thesis</Button>
                     </Link>
                   </div>
                 ) : (

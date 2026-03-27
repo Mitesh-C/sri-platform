@@ -27,18 +27,18 @@ const Landing = () => {
               Welcome to Sri
             </h1>
             <p className="text-lg md:text-xl leading-relaxed text-muted-foreground mb-12 max-w-2xl" data-testid="hero-subtitle">
-              Leading Capital Formation Tool of the 21st Century.
+              World's First Capital Formation Tool for Entrepreneurs providing global & round the clock access to both Investors and Businesses.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link to="/explore">
                 <Button size="lg" className="rounded-full px-8 py-6 font-medium" data-testid="hero-cta-explore">
-                  Explore Investment Theses
+                  Explore Investment Thesis
                   <ArrowRight className="ml-2 h-5 w-5" strokeWidth={1.5} />
                 </Button>
               </Link>
               <Link to="/governance">
                 <Button size="lg" variant="outline" className="rounded-full px-8 py-6 font-medium" data-testid="hero-cta-governance">
-                  Read Governance Charter
+                  How It Works
                 </Button>
               </Link>
             </div>
@@ -142,7 +142,7 @@ const Landing = () => {
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
                   <TrendingUp className="h-6 w-6 text-primary" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-serif text-2xl font-normal mb-4">Investment Theses</h3>
+                <h3 className="font-serif text-2xl font-normal mb-4">Investment Thesis</h3>
                 <p className="text-base leading-relaxed text-muted-foreground">
                   Startups publish detailed theses with risks, governance structures, and SAFE terms.
                 </p>

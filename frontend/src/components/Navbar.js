@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { useAuth } from '../contexts/AuthContext';
-import { Building2, LogOut, User, Menu, X } from 'lucide-react';
+import { Building2, LogOut, User, Menu, X, Plus, CreditCard } from 'lucide-react';
 import { useState } from 'react';
 
 const Navbar = () => {
@@ -36,15 +36,26 @@ const Navbar = () => {
                 <Link to="/governance">
                   <Button variant="ghost" data-testid="nav-governance">How It Works</Button>
                 </Link>
+                <Link to="/pricing">
+                  <Button variant="ghost" data-testid="nav-pricing">Pricing</Button>
+                </Link>
                 {(user.role === 'investor' || user.role === 'both') && (
                   <Link to="/investor/dashboard">
                     <Button variant="ghost" data-testid="nav-investor-dashboard">Dashboard</Button>
                   </Link>
                 )}
                 {(user.role === 'business' || user.role === 'both') && (
-                  <Link to="/business/dashboard">
-                    <Button variant="ghost" data-testid="nav-business-dashboard">Business</Button>
-                  </Link>
+                  <>
+                    <Link to="/business/dashboard">
+                      <Button variant="ghost" data-testid="nav-business-dashboard">Business</Button>
+                    </Link>
+                    <Link to="/business/thesis/new">
+                      <Button variant="ghost" size="sm" className="text-primary" data-testid="nav-create-thesis">
+                        <Plus className="h-4 w-4 mr-1" strokeWidth={1.5} />
+                        Create Thesis
+                      </Button>
+                    </Link>
+                  </>
                 )}
                 <Link to="/settings/profile">
                   <Button variant="ghost" size="icon" data-testid="nav-profile">
@@ -62,6 +73,9 @@ const Navbar = () => {
                 </Link>
                 <Link to="/governance">
                   <Button variant="ghost" data-testid="nav-governance-public">How It Works</Button>
+                </Link>
+                <Link to="/pricing">
+                  <Button variant="ghost" data-testid="nav-pricing-public">Pricing</Button>
                 </Link>
                 <Link to="/auth">
                   <Button className="rounded-full" data-testid="nav-signin">Sign In</Button>
@@ -96,15 +110,29 @@ const Navbar = () => {
                   <Link to="/governance" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">How It Works</Button>
                   </Link>
+                  <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start">
+                      <CreditCard className="h-5 w-5 mr-2" strokeWidth={1.5} />
+                      Pricing
+                    </Button>
+                  </Link>
                   {(user.role === 'investor' || user.role === 'both') && (
                     <Link to="/investor/dashboard" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="ghost" className="w-full justify-start">Dashboard</Button>
                     </Link>
                   )}
                   {(user.role === 'business' || user.role === 'both') && (
-                    <Link to="/business/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">Business</Button>
-                    </Link>
+                    <>
+                      <Link to="/business/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start">Business</Button>
+                      </Link>
+                      <Link to="/business/thesis/new" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start text-primary">
+                          <Plus className="h-5 w-5 mr-2" strokeWidth={1.5} />
+                          Create Thesis
+                        </Button>
+                      </Link>
+                    </>
                   )}
                   <Link to="/settings/profile" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">
@@ -124,6 +152,12 @@ const Navbar = () => {
                   </Link>
                   <Link to="/governance" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">How It Works</Button>
+                  </Link>
+                  <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start">
+                      <CreditCard className="h-5 w-5 mr-2" strokeWidth={1.5} />
+                      Pricing
+                    </Button>
                   </Link>
                   <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                     <Button className="rounded-full w-full">Sign In</Button>
