@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Checkbox } from '../components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -119,19 +120,29 @@ const Auth = () => {
               {!isLogin && (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="role">I am a...</Label>
-                    <Select
+                    <Label>I am a...</Label>
+                    <RadioGroup
                       value={formData.role}
                       onValueChange={(value) => setFormData({ ...formData, role: value })}
+                      className="flex flex-col gap-3"
                     >
-                      <SelectTrigger className="h-12 rounded-xl" data-testid="select-role">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="investor" data-testid="role-investor">Investor</SelectItem>
-                        <SelectItem value="business" data-testid="role-business">Founder / Businessman</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <div
+                        className={`flex items-center space-x-3 p-4 rounded-xl border cursor-pointer transition-colors ${formData.role === 'investor' ? 'border-primary bg-primary/5' : 'border-border/50 hover:bg-muted/30'}`}
+                        onClick={() => setFormData({ ...formData, role: 'investor' })}
+                        data-testid="role-investor"
+                      >
+                        <RadioGroupItem value="investor" id="role-investor" />
+                        <Label htmlFor="role-investor" className="cursor-pointer font-medium">Investor</Label>
+                      </div>
+                      <div
+                        className={`flex items-center space-x-3 p-4 rounded-xl border cursor-pointer transition-colors ${formData.role === 'business' ? 'border-primary bg-primary/5' : 'border-border/50 hover:bg-muted/30'}`}
+                        onClick={() => setFormData({ ...formData, role: 'business' })}
+                        data-testid="role-business"
+                      >
+                        <RadioGroupItem value="business" id="role-business" />
+                        <Label htmlFor="role-business" className="cursor-pointer font-medium">Founder / Businessman</Label>
+                      </div>
+                    </RadioGroup>
                   </div>
 
                   <div className="space-y-2">
