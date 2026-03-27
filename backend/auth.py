@@ -5,8 +5,12 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "your-secret-key-change-in-production")
+load_dotenv(Path(__file__).parent / '.env')
+
+SECRET_KEY = os.environ["SECRET_KEY"]
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 43200
 
