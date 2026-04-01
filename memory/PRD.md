@@ -17,51 +17,42 @@ Build a production-grade web platform named "Sri by Mahakali Tribunal" for gover
 
 ### Core Infrastructure
 - Full-stack application with React frontend + FastAPI backend + MongoDB
-- JWT authentication (signup/login)
-- Role-based access control (investor, business, admin)
+- JWT authentication (signup/login) with SECRET_KEY from environment
+- Role-based access control (investor, business)
 - Protected routes with role checking
+- Email verification system (Resend-ready, dev mode logs to console)
+- Razorpay payment gateway architecture (needs test keys)
 
 ### Branding & UI
 - Primary color: #464AAC
 - Font: Futura/Inter
 - Custom logo
-- Landing page with "Welcome to Sri" hero
-- Updated subtitle: "World's First Capital Formation Tool for Entrepreneurs..."
-- Custom footer with "Sri by Mahakali Tribunal", email (hello@mahakalitribunal.com), phone (+91 9916912450)
+- Page title: "SRI | Mahakali Tribunal"
+- Landing page: "World's First Capital Formation Tool for Entrepreneurs..."
+- Custom footer with email (hello@mahakalitribunal.com) + phone (+91 9916912450)
 - "How It Works" (renamed from Governance Charter)
 - "Thesis" (renamed from "Theses") throughout
 
 ### Pages
 - Landing page
-- Auth (Sign In / Sign Up) with role selection (Investor, Founder/Businessman)
+- Auth (Sign In / Sign Up) with role dropdown (Investor, Founder/Businessman)
 - Explore Investment Thesis (with filters, Create Thesis/Company buttons for founders)
-- Thesis Detail (with video embed, pitch deck link, invest form)
-- How It Works (governance charter)
-- Pricing (Founder & Investor tabs with CHF fee tables)
-- Investor Dashboard (stats, investments, recurring, reference prices)
-- Business Dashboard (stats, quick actions)
-- Thesis Editor (with Video URL, Pitch Deck URL fields)
-- Company Create
-- Liquidity Window Create
-- Reference Price Update
-- Bank Accounts
-- Profile
-- Email Verification page
-- Verify Email page (/verify-email?token=...)
+- Thesis Detail (video embed, pitch deck link, bank account check, Copy Link button)
+- How It Works
+- Pricing (Founder & Investor tabs with CHF fee tables, "Liquidity Windows Fee")
+- Investor Dashboard
+- Business Dashboard
+- Thesis Editor (Industry dropdown with 10 categories, Company name text field, stages: Pre-seed/Seed/Series A/B/C+, status: Draft/Active/Pending/Funded, Video URL, Pitch Deck URL)
+- Company Create (redirected to if no company exists)
+- Bank Accounts, Profile, Email Verification pages
 
 ### Backend Features
 - Full CRUD for theses, companies, investments
-- Recurring investments (SIP)
-- Reference price updates
-- Liquidity windows
-- Secondary sales
-- Bank account linking
-- Discussion threads
-- Governance alerts
-- Notification system
+- Recurring investments (SIP), Reference prices, Liquidity windows
+- Bank account linking (required for transactions)
 - Email verification (token-based, Resend integration ready)
 - Razorpay payment gateway (architecture ready, needs keys)
-- Dashboard analytics endpoints
+- Deployment-ready (SECRET_KEY from env, no hardcoded values)
 
 ### Pricing (Display Only)
 **Founder:**
