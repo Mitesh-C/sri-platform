@@ -156,17 +156,16 @@ const ThesisEditor = () => {
 
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="company_id">Company *</Label>
-                    <Select value={formData.company_id} onValueChange={(value) => setFormData({ ...formData, company_id: value })} required>
-                      <SelectTrigger className="h-12 rounded-xl" data-testid="select-company">
-                        <SelectValue placeholder="Select company" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {companies.map((company) => (
-                          <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="company_name">Company Name *</Label>
+                    <Input
+                      id="company_name"
+                      data-testid="input-company-name"
+                      value={formData.company_id}
+                      onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
+                      required
+                      className="h-12 rounded-xl"
+                      placeholder="Enter company name"
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -233,7 +232,6 @@ const ThesisEditor = () => {
                           <SelectItem value="Seed">Seed</SelectItem>
                           <SelectItem value="Series A">Series A</SelectItem>
                           <SelectItem value="Series B">Series B</SelectItem>
-                          <SelectItem value="Series C+">Series C+</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -247,7 +245,8 @@ const ThesisEditor = () => {
                         <SelectContent>
                           <SelectItem value="draft">Draft</SelectItem>
                           <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="closed">Closed</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="funded">Funded</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

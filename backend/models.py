@@ -51,7 +51,7 @@ class ThesisCreate(BaseModel):
     thesis_content: str
     risks: str
     safe_structure: dict
-    status: Literal["draft", "active", "closed"] = "draft"
+    status: Literal["draft", "active", "pending", "funded"] = "draft"
     industry: str
     geography: str
     stage: str
