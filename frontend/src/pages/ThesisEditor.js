@@ -46,6 +46,10 @@ const ThesisEditor = () => {
     try {
       const response = await api.get('/companies/my');
       setCompanies(response.data);
+      if (response.data.length === 0 && !id) {
+        toast.info('You need to create a company first before creating a thesis');
+        navigate('/business/company/new');
+      }
     } catch (error) {
       toast.error('Failed to load companies');
     }
@@ -181,15 +185,26 @@ const ThesisEditor = () => {
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="industry">Industry *</Label>
-                      <Input
+                      <select
                         id="industry"
-                        data-testid="input-industry"
+                        data-testid="select-industry"
                         value={formData.industry}
                         onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                         required
-                        className="h-12 rounded-xl"
-                        placeholder="Energy"
-                      />
+                        className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <option value="" disabled>Select category</option>
+                        <option value="Energy">Energy</option>
+                        <option value="Basic Materials">Basic Materials</option>
+                        <option value="Industrials">Industrials</option>
+                        <option value="Consumer Cyclicals">Consumer Cyclicals</option>
+                        <option value="Consumer Non-Cyclicals">Consumer Non-Cyclicals</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Financials">Financials</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Telecommunications Services">Telecommunications Services</option>
+                        <option value="Utilities">Utilities</option>
+                      </select>
                     </div>
 
                     <div className="space-y-2">

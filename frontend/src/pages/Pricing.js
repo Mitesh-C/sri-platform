@@ -188,7 +188,7 @@ const Pricing = () => {
 
                 {/* Trading Fees */}
                 <Card className="p-6 sm:p-8 md:p-10 rounded-2xl border-border/50" data-testid="investor-trading-fees">
-                  <h2 className="font-serif text-2xl sm:text-3xl font-normal mb-6">Trading Fees</h2>
+                  <h2 className="font-serif text-2xl sm:text-3xl font-normal mb-6">Liquidity Windows Fee</h2>
                   <div className="overflow-x-auto">
                     <table className="w-full" data-testid="trading-fee-table">
                       <thead>

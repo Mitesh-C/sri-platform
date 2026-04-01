@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../components/ui/separator';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
-import { AlertTriangle, Building2, MapPin, TrendingUp, Shield, MessageCircle, Video, FileDown } from 'lucide-react';
+import { AlertTriangle, Building2, MapPin, TrendingUp, Shield, MessageCircle, Video, FileDown, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ThesisDetail = () => {
@@ -22,6 +22,7 @@ const ThesisDetail = () => {
   const [discussions, setDiscussions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showInvestForm, setShowInvestForm] = useState(false);
+  const [hasBankAccount, setHasBankAccount] = useState(false);
   const [investmentData, setInvestmentData] = useState({
     amount: '',
     investment_type: 'one_time',
@@ -41,6 +42,16 @@ const ThesisDetail = () => {
       ]);
       setThesis(thesisRes.data);
       setDiscussions(discussionsRes.data);
+
+      // Check if user has a linked bank account
+      if (user) {
+        try {
+          const bankRes = await api.get('/bank-accounts/my');
+          setHasBankAccount(bankRes.data && bankRes.data.length > 0);
+        } catch {
+          setHasBankAccount(false);
+        }
+      }
     } catch (error) {
       toast.error('Failed to load thesis');
     } finally {
@@ -248,7 +259,23 @@ const ThesisDetail = () => {
             {/* Invest Button / Form */}
             {thesis.status === 'active' && (
               <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="invest-card">
-                {!showInvestForm ? (
+                {!hasBankAccount ? (
+                  <div className="text-center">
+                    <h2 className="font-serif text-3xl font-normal mb-4">Link a Bank Account</h2>
+                    <p className="text-muted-foreground mb-6">
+                      You need a verified bank account linked before you can invest
+                    </p>
+                    <Link to="/settings/bank-accounts">
+                      <Button
+                        size="lg"
+                        className="rounded-full px-8 py-6"
+                        data-testid="link-bank-btn"
+                      >
+                        Link Bank Account
+                      </Button>
+                    </Link>
+                  </div>
+                ) : !showInvestForm ? (
                   <div className="text-center">
                     <h2 className="font-serif text-3xl font-normal mb-4">Ready to invest?</h2>
                     <p className="text-muted-foreground mb-6">
@@ -361,7 +388,7 @@ const ThesisDetail = () => {
             )}
 
             {/* Discussions */}
-            <Card className="p-8 md:p-12 rounded-2xl border-border/50" data-testid="discussions-card">
+            <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="discussions-card">
               <div className="flex items-center gap-3 mb-6">
                 <MessageCircle className="h-6 w-6 text-primary" strokeWidth={1.5} />
                 <h2 className="font-serif text-3xl font-normal">Discussion</h2>
@@ -387,6 +414,22 @@ const ThesisDetail = () => {
                 </div>
               )}
             </Card>
+
+            {/* Copy Link */}
+            <div className="flex justify-center" data-testid="copy-link-section">
+              <Button
+                variant="outline"
+                className="rounded-full px-8 h-12 gap-2"
+                data-testid="copy-link-btn"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success('Link copied to clipboard!');
+                }}
+              >
+                <Link2 className="h-4 w-4" strokeWidth={1.5} />
+                Copy Link
+              </Button>
+            </div>
           </motion.div>
         </div>
       </div>
