@@ -223,33 +223,37 @@ const ThesisEditor = () => {
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="stage">Stage *</Label>
-                      <Select value={formData.stage} onValueChange={(value) => setFormData({ ...formData, stage: value })}>
-                        <SelectTrigger className="h-12 rounded-xl" data-testid="select-stage">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Pre-seed">Pre-seed</SelectItem>
-                          <SelectItem value="Seed">Seed</SelectItem>
-                          <SelectItem value="Series A">Series A</SelectItem>
-                          <SelectItem value="Series B">Series B</SelectItem>
-                          <SelectItem value="Series C+">Series C+</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <select
+                        id="stage"
+                        data-testid="select-stage"
+                        value={formData.stage}
+                        onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
+                        required
+                        className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <option value="Pre-seed">Pre-seed</option>
+                        <option value="Seed">Seed</option>
+                        <option value="Series A">Series A</option>
+                        <option value="Series B">Series B</option>
+                        <option value="Series C+">Series C+</option>
+                      </select>
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="status">Status *</Label>
-                      <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                        <SelectTrigger className="h-12 rounded-xl" data-testid="select-status">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="draft">Draft</SelectItem>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="funded">Funded</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <select
+                        id="status"
+                        data-testid="select-status"
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                        required
+                        className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="funded">Funded</option>
+                      </select>
                     </div>
                   </div>
                 </div>
