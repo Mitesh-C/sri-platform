@@ -232,6 +232,7 @@ const ThesisEditor = () => {
                           <SelectItem value="Seed">Seed</SelectItem>
                           <SelectItem value="Series A">Series A</SelectItem>
                           <SelectItem value="Series B">Series B</SelectItem>
+                          <SelectItem value="Series C+">Series C+</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
