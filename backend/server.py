@@ -229,6 +229,28 @@ async def list_theses(
             t['updated_at'] = datetime.fromisoformat(t['updated_at'])
     return theses
 
+@api_router.get("/theses/my", response_model=List[Thesis])
+async def my_theses(current_user: dict = Depends(get_current_user)):
+    # Find companies owned by this user
+    user_companies = await db.companies.find(
+        {"founder_id": current_user["id"]}, {"_id": 0, "id": 1}
+    ).to_list(100)
+    company_ids = [c["id"] for c in user_companies]
+    
+    # Find theses linked to those companies OR with company_id matching user's name-based entries
+    query = {"$or": [
+        {"company_id": {"$in": company_ids}},
+        {"company_id": current_user.get("id", "")}
+    ]} if company_ids else {}
+    
+    theses = await db.theses.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+    for t in theses:
+        if isinstance(t.get('created_at'), str):
+            t['created_at'] = datetime.fromisoformat(t['created_at'])
+        if isinstance(t.get('updated_at'), str):
+            t['updated_at'] = datetime.fromisoformat(t['updated_at'])
+    return theses
+
 @api_router.get("/theses/{thesis_id}", response_model=Thesis)
 async def get_thesis(thesis_id: str):
     thesis = await db.theses.find_one({"id": thesis_id}, {"_id": 0})
@@ -267,6 +289,22 @@ async def update_thesis(
         updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
     
     return Thesis(**updated)
+
+@api_router.delete("/theses/{thesis_id}")
+async def delete_thesis(
+    thesis_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user["role"] not in ["business", "both", "admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    existing = await db.theses.find_one({"id": thesis_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Thesis not found")
+    
+    await db.theses.delete_one({"id": thesis_id})
+    return {"message": "Thesis deleted successfully"}
+
 
 # Investment Routes
 @api_router.post("/investments", response_model=Investment)
