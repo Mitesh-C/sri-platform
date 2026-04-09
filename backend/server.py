@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 from pathlib import Path
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 import os
 import logging
 from datetime import datetime, timezone, timedelta
@@ -46,6 +49,11 @@ api_router = APIRouter(prefix="/api")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Rate limiter
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # Helper Functions
 def serialize_doc(doc):
     if doc and '_id' in doc:
@@ -60,7 +68,8 @@ async def get_user_by_email(email: str):
 
 # Auth Routes
 @api_router.post("/auth/signup", response_model=Token)
-async def signup(user_data: UserCreate):
+@limiter.limit("5/minute")
+async def signup(request: Request, user_data: UserCreate):
     existing_user = await get_user_by_email(user_data.email)
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -85,7 +94,8 @@ async def signup(user_data: UserCreate):
     return Token(access_token=access_token, token_type="bearer", user=user)
 
 @api_router.post("/auth/login", response_model=Token)
-async def login(credentials: UserLogin):
+@limiter.limit("10/minute")
+async def login(request: Request, credentials: UserLogin):
     user_doc = await db.users.find_one({"email": credentials.email})
     if not user_doc:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -195,13 +205,15 @@ async def create_thesis(
 ):
     if current_user["role"] not in ["business", "both", "admin"]:
         raise HTTPException(status_code=403, detail="Not authorized")
-    
-    thesis = Thesis(**thesis_data.model_dump())
+
+    thesis = Thesis(**thesis_data.model_dump(), created_by=current_user["id"])
     thesis_dict = thesis.model_dump()
     thesis_dict['created_at'] = thesis_dict['created_at'].isoformat()
     thesis_dict['updated_at'] = thesis_dict['updated_at'].isoformat()
-    
+
     await db.theses.insert_one(thesis_dict)
+    await log_audit("thesis_created", current_user["id"], "thesis", thesis.id,
+                    {"title": thesis.title, "company_name": thesis.company_name})
     return thesis
 
 @api_router.get("/theses", response_model=List[Thesis])
@@ -209,7 +221,8 @@ async def list_theses(
     status: Optional[str] = None,
     industry: Optional[str] = None,
     geography: Optional[str] = None,
-    stage: Optional[str] = None
+    stage: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
 ):
     query = {}
     if status:
@@ -231,19 +244,9 @@ async def list_theses(
 
 @api_router.get("/theses/my", response_model=List[Thesis])
 async def my_theses(current_user: dict = Depends(get_current_user)):
-    # Find companies owned by this user
-    user_companies = await db.companies.find(
-        {"founder_id": current_user["id"]}, {"_id": 0, "id": 1}
-    ).to_list(100)
-    company_ids = [c["id"] for c in user_companies]
-    
-    # Find theses linked to those companies OR with company_id matching user's name-based entries
-    query = {"$or": [
-        {"company_id": {"$in": company_ids}},
-        {"company_id": current_user.get("id", "")}
-    ]} if company_ids else {}
-    
-    theses = await db.theses.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+    theses = await db.theses.find(
+        {"created_by": current_user["id"]}, {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
     for t in theses:
         if isinstance(t.get('created_at'), str):
             t['created_at'] = datetime.fromisoformat(t['created_at'])
@@ -252,7 +255,7 @@ async def my_theses(current_user: dict = Depends(get_current_user)):
     return theses
 
 @api_router.get("/theses/{thesis_id}", response_model=Thesis)
-async def get_thesis(thesis_id: str):
+async def get_thesis(thesis_id: str, current_user: dict = Depends(get_current_user)):
     thesis = await db.theses.find_one({"id": thesis_id}, {"_id": 0})
     if not thesis:
         raise HTTPException(status_code=404, detail="Thesis not found")
@@ -272,15 +275,21 @@ async def update_thesis(
 ):
     if current_user["role"] not in ["business", "both", "admin"]:
         raise HTTPException(status_code=403, detail="Not authorized")
-    
+
     existing = await db.theses.find_one({"id": thesis_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Thesis not found")
-    
+
+    # Verify ownership — only the creator or admin may update
+    if current_user["role"] != "admin":
+        if existing.get("created_by") != current_user["id"]:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this thesis")
+
     update_dict = thesis_data.model_dump()
     update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
-    
+
     await db.theses.update_one({"id": thesis_id}, {"$set": update_dict})
+    await log_audit("thesis_updated", current_user["id"], "thesis", thesis_id, {"title": existing.get("title")})
     
     updated = await db.theses.find_one({"id": thesis_id}, {"_id": 0})
     if isinstance(updated['created_at'], str):
@@ -297,12 +306,18 @@ async def delete_thesis(
 ):
     if current_user["role"] not in ["business", "both", "admin"]:
         raise HTTPException(status_code=403, detail="Not authorized")
-    
+
     existing = await db.theses.find_one({"id": thesis_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Thesis not found")
-    
+
+    # Verify ownership — only the creator or admin can delete
+    if current_user["role"] != "admin":
+        if existing.get("created_by") != current_user["id"]:
+            raise HTTPException(status_code=403, detail="Not authorized to delete this thesis")
+
     await db.theses.delete_one({"id": thesis_id})
+    await log_audit("thesis_deleted", current_user["id"], "thesis", thesis_id, {"title": existing.get("title")})
     return {"message": "Thesis deleted successfully"}
 
 
@@ -321,26 +336,37 @@ async def create_investment(
     investment = Investment(**investment_data.model_dump(), investor_id=current_user["id"])
     investment_dict = investment.model_dump()
     investment_dict['created_at'] = investment_dict['created_at'].isoformat()
-    
-    await db.investments.insert_one(investment_dict)
-    
-    # Send notification
-    await create_notification(NotificationCreate(
-        user_id=current_user["id"],
-        type="investment_created",
-        title="Investment Submitted",
-        message=f"Your investment of ${investment.amount} has been submitted successfully.",
-        related_id=investment.id
-    ))
-    
-    # Send email
-    user = await db.users.find_one({"id": current_user["id"]})
-    if user:
-        await EmailService.send_investment_confirmation(
-            user['email'],
-            {"amount": investment.amount, "investment_type": investment.investment_type}
-        )
-    
+
+    # Persist investment + notification atomically
+    async with await client.start_session() as session:
+        async with session.start_transaction():
+            await db.investments.insert_one(investment_dict, session=session)
+
+            notif = Notification(**NotificationCreate(
+                user_id=current_user["id"],
+                type="investment_created",
+                title="Investment Submitted",
+                message=f"Your investment of ${investment.amount} has been submitted successfully.",
+                related_id=investment.id
+            ).model_dump())
+            notif_dict = notif.model_dump()
+            notif_dict['created_at'] = notif_dict['created_at'].isoformat()
+            await db.notifications.insert_one(notif_dict, session=session)
+
+    await log_audit("investment_created", current_user["id"], "investment", investment.id,
+                    {"amount": investment.amount, "thesis_id": investment.thesis_id, "type": investment.investment_type})
+
+    # Send email (non-critical — log failures but don't fail the request)
+    try:
+        user_doc = await db.users.find_one({"id": current_user["id"]})
+        if user_doc:
+            await EmailService.send_investment_confirmation(
+                user_doc['email'],
+                {"amount": investment.amount, "investment_type": investment.investment_type}
+            )
+    except Exception as e:
+        logger.error(f"[EMAIL] Investment confirmation email failed: {e}")
+
     return investment
 
 @api_router.get("/investments/my", response_model=List[Investment])
@@ -432,6 +458,10 @@ async def update_recurring_status(
     status: str,
     current_user: dict = Depends(get_current_user)
 ):
+    allowed_statuses = {"active", "paused", "cancelled"}
+    if status not in allowed_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {', '.join(allowed_statuses)}")
+
     result = await db.recurring_investments.update_one(
         {"id": recurring_id, "investor_id": current_user["id"]},
         {"$set": {"status": status}}
@@ -454,7 +484,9 @@ async def create_reference_price(
     price_dict['created_at'] = price_dict['created_at'].isoformat()
     
     await db.reference_prices.insert_one(price_dict)
-    
+    await log_audit("reference_price_updated", current_user["id"], "reference_price", price.id,
+                    {"thesis_id": price.thesis_id, "old_price": price.old_price, "new_price": price.new_price})
+
     # Notify all investors of this thesis
     investments = await db.investments.find({"thesis_id": price_data.thesis_id}, {"_id": 0}).to_list(1000)
     investor_ids = set(inv['investor_id'] for inv in investments)
@@ -479,7 +511,7 @@ async def create_reference_price(
     return price
 
 @api_router.get("/reference-prices", response_model=List[ReferencePrice])
-async def list_reference_prices(thesis_id: Optional[str] = None):
+async def list_reference_prices(thesis_id: Optional[str] = None, current_user: dict = Depends(get_current_user)):
     query = {"thesis_id": thesis_id} if thesis_id else {}
     prices = await db.reference_prices.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     for p in prices:
@@ -509,7 +541,7 @@ async def create_liquidity_window(
     return window
 
 @api_router.get("/liquidity-windows", response_model=List[LiquidityWindow])
-async def list_liquidity_windows(thesis_id: Optional[str] = None):
+async def list_liquidity_windows(thesis_id: Optional[str] = None, current_user: dict = Depends(get_current_user)):
     query = {"thesis_id": thesis_id} if thesis_id else {}
     windows = await db.liquidity_windows.find(query, {"_id": 0}).to_list(1000)
     for w in windows:
@@ -561,6 +593,7 @@ async def approve_secondary_sale(
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Sale not found")
+    await log_audit("secondary_sale_approved", current_user["id"], "secondary_sale", sale_id)
     return {"success": True}
 
 # Bank Account Routes
@@ -600,7 +633,7 @@ async def create_discussion(
     return discussion
 
 @api_router.get("/discussions/{thesis_id}", response_model=List[Discussion])
-async def list_discussions(thesis_id: str):
+async def list_discussions(thesis_id: str, current_user: dict = Depends(get_current_user)):
     discussions = await db.discussions.find(
         {"thesis_id": thesis_id}, {"_id": 0}
     ).sort("created_at", -1).to_list(1000)
@@ -611,7 +644,7 @@ async def list_discussions(thesis_id: str):
 
 # Governance Routes
 @api_router.get("/governance/alerts", response_model=List[GovernanceAlert])
-async def list_governance_alerts():
+async def list_governance_alerts(current_user: dict = Depends(get_current_user)):
     alerts = await db.governance_alerts.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     for a in alerts:
         if isinstance(a['created_at'], str):
@@ -640,18 +673,15 @@ async def investor_dashboard(current_user: dict = Depends(get_current_user)):
 async def business_dashboard(current_user: dict = Depends(get_current_user)):
     if current_user["role"] not in ["business", "both", "admin"]:
         raise HTTPException(status_code=403, detail="Not authorized")
-    
-    companies = await db.companies.find({"created_by": current_user["id"]}, {"_id": 0}).to_list(1000)
-    company_ids = [c['id'] for c in companies]
-    
-    theses = await db.theses.find({"company_id": {"$in": company_ids}}, {"_id": 0}).to_list(1000)
+
+    theses = await db.theses.find({"created_by": current_user["id"]}, {"_id": 0}).to_list(1000)
     thesis_ids = [t['id'] for t in theses]
-    
+
     investments = await db.investments.find({"thesis_id": {"$in": thesis_ids}}, {"_id": 0}).to_list(1000)
-    
+
     capital_raised = sum(inv['amount'] for inv in investments if inv.get('status') == 'completed')
     active_investors = len(set(inv['investor_id'] for inv in investments if inv.get('status') == 'completed'))
-    
+
     return {
         "capital_raised": capital_raised,
         "active_investors": active_investors,
@@ -691,14 +721,11 @@ async def business_timeline(current_user: dict = Depends(get_current_user)):
     if current_user["role"] not in ["business", "both", "admin"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    companies = await db.companies.find({"created_by": current_user["id"]}, {"_id": 0}).to_list(1000)
-    company_ids = [c['id'] for c in companies]
-    
-    theses = await db.theses.find({"company_id": {"$in": company_ids}}, {"_id": 0}).to_list(1000)
+    theses = await db.theses.find({"created_by": current_user["id"]}, {"_id": 0}).to_list(1000)
     thesis_ids = [t['id'] for t in theses]
-    
+
     investments = await db.investments.find(
-        {"thesis_id": {"$in": thesis_ids}, "status": "completed"}, 
+        {"thesis_id": {"$in": thesis_ids}, "status": "completed"},
         {"_id": 0}
     ).to_list(1000)
     
@@ -752,6 +779,22 @@ async def create_notification(notification: NotificationCreate):
     notif_dict['created_at'] = notif_dict['created_at'].isoformat()
     await db.notifications.insert_one(notif_dict)
     return notif
+
+async def log_audit(action: str, user_id: str, resource_type: str, resource_id: str, details: dict = None):
+    """Write an immutable audit record for every financial or sensitive action."""
+    record = {
+        "id": str(__import__("uuid").uuid4()),
+        "action": action,
+        "user_id": user_id,
+        "resource_type": resource_type,
+        "resource_id": resource_id,
+        "details": details or {},
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    try:
+        await db.audit_logs.insert_one(record)
+    except Exception as e:
+        logger.error(f"[AUDIT] Failed to write audit log: {e}")
 
 # Payment Routes (Razorpay)
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
@@ -872,12 +915,17 @@ async def my_payments(current_user: dict = Depends(get_current_user)):
 
 app.include_router(api_router)
 
+_cors_origins_raw = os.environ.get('CORS_ORIGINS', 'http://localhost:3000')
+_cors_origins = [o.strip() for o in _cors_origins_raw.split(',') if o.strip()]
+if '*' in _cors_origins:
+    logger.warning("[CORS] Wildcard '*' detected in CORS_ORIGINS — this is insecure in production. Set explicit origins.")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_cors_origins,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 @app.on_event("shutdown")

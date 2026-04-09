@@ -30,15 +30,9 @@ const Profile = () => {
         country: user.country || '',
         role: user.role || ''
       });
-      // Check email verification status (we'll implement this)
-      checkEmailVerification();
+      setEmailVerified(user.email_verified === true);
     }
   }, [user]);
-
-  const checkEmailVerification = async () => {
-    // Mock for now - will implement actual verification
-    setEmailVerified(true);
-  };
 
   const handleSendVerification = async () => {
     setLoading(true);

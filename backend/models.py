@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
 from typing import Optional, List, Literal
 from datetime import datetime, timezone
 import uuid
@@ -45,7 +45,16 @@ class Company(CompanyCreate):
 
 # Investment Thesis Models
 class ThesisCreate(BaseModel):
-    company_id: str
+    # Company details (embedded — no separate company record required)
+    company_name: str
+    company_pan: str
+    company_tan: str
+    company_address: str
+    company_email: EmailStr
+    company_website: Optional[str] = None
+    company_cin: Optional[str] = None          # Company Identification Number (MCA)
+    company_description: Optional[str] = None
+
     title: str
     overview: str
     thesis_content: str
@@ -61,6 +70,7 @@ class ThesisCreate(BaseModel):
 class Thesis(ThesisCreate):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_by: str = ""                        # user id of the founder who created it
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -70,6 +80,15 @@ class InvestmentCreate(BaseModel):
     amount: float
     investment_type: Literal["one_time", "recurring"] = "one_time"
     acknowledged_risks: bool
+
+    @field_validator('amount')
+    @classmethod
+    def validate_amount(cls, v):
+        if v <= 0:
+            raise ValueError('Investment amount must be greater than zero')
+        if v > 10_000_000:
+            raise ValueError('Investment amount exceeds the maximum allowed per transaction (10,000,000)')
+        return round(v, 2)
 
 class Investment(InvestmentCreate):
     model_config = ConfigDict(extra="ignore")
@@ -83,6 +102,15 @@ class RecurringInvestmentCreate(BaseModel):
     thesis_id: str
     amount: float
     frequency: Literal["weekly", "monthly", "quarterly"]
+
+    @field_validator('amount')
+    @classmethod
+    def validate_amount(cls, v):
+        if v <= 0:
+            raise ValueError('Recurring amount must be greater than zero')
+        if v > 1_000_000:
+            raise ValueError('Recurring amount exceeds the maximum allowed per instalment (1,000,000)')
+        return round(v, 2)
 
 class RecurringInvestment(RecurringInvestmentCreate):
     model_config = ConfigDict(extra="ignore")

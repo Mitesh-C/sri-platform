@@ -76,10 +76,10 @@ const BusinessDashboard = () => {
             <h1 className="font-serif text-5xl md:text-6xl font-light tracking-tight" data-testid="dashboard-heading">
               Business Dashboard
             </h1>
-            <Link to="/business/company/new">
-              <Button className="rounded-full" data-testid="create-company-btn">
+            <Link to="/business/thesis/new">
+              <Button className="rounded-full" data-testid="create-thesis-header-btn">
                 <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
-                New Company
+                New Thesis
               </Button>
             </Link>
           </div>

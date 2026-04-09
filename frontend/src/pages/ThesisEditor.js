@@ -6,7 +6,6 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import api from '../lib/api';
 import { toast } from 'sonner';
 import { FileText, Plus, Trash2, Video, FileDown } from 'lucide-react';
@@ -14,10 +13,18 @@ import { FileText, Plus, Trash2, Video, FileDown } from 'lucide-react';
 const ThesisEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    company_id: '',
+    // Company details
+    company_name: '',
+    company_pan: '',
+    company_tan: '',
+    company_address: '',
+    company_email: '',
+    company_website: '',
+    company_cin: '',
+    company_description: '',
+    // Thesis details
     title: '',
     overview: '',
     thesis_content: '',
@@ -36,31 +43,24 @@ const ThesisEditor = () => {
   ]);
 
   useEffect(() => {
-    fetchCompanies();
     if (id) {
       fetchThesis();
     }
   }, [id]);
-
-  const fetchCompanies = async () => {
-    try {
-      const response = await api.get('/companies/my');
-      setCompanies(response.data);
-      if (response.data.length === 0 && !id) {
-        toast.info('You need to create a company first before creating a thesis');
-        navigate('/business/company/new');
-      }
-    } catch (error) {
-      toast.error('Failed to load companies');
-    }
-  };
 
   const fetchThesis = async () => {
     try {
       const response = await api.get(`/theses/${id}`);
       const thesis = response.data;
       setFormData({
-        company_id: thesis.company_id,
+        company_name: thesis.company_name || '',
+        company_pan: thesis.company_pan || '',
+        company_tan: thesis.company_tan || '',
+        company_address: thesis.company_address || '',
+        company_email: thesis.company_email || '',
+        company_website: thesis.company_website || '',
+        company_cin: thesis.company_cin || '',
+        company_description: thesis.company_description || '',
         title: thesis.title,
         overview: thesis.overview,
         thesis_content: thesis.thesis_content,
@@ -72,7 +72,7 @@ const ThesisEditor = () => {
         video_url: thesis.video_url || '',
         pitch_deck_url: thesis.pitch_deck_url || ''
       });
-      
+
       if (thesis.safe_structure) {
         const fields = Object.entries(thesis.safe_structure).map(([key, value]) => ({ key, value }));
         setSafeFields(fields);
@@ -112,6 +112,9 @@ const ThesisEditor = () => {
       // Clean empty optional fields
       if (!payload.video_url) delete payload.video_url;
       if (!payload.pitch_deck_url) delete payload.pitch_deck_url;
+      if (!payload.company_website) delete payload.company_website;
+      if (!payload.company_cin) delete payload.company_cin;
+      if (!payload.company_description) delete payload.company_description;
 
       if (id) {
         await api.put(`/theses/${id}`, payload);
@@ -151,23 +154,129 @@ const ThesisEditor = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
+              {/* Company Details Card */}
+              <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="company-details-form">
+                <h2 className="font-serif text-3xl font-normal mb-8">Company Details</h2>
+
+                <div className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="company_name">Company Name *</Label>
+                      <Input
+                        id="company_name"
+                        data-testid="input-company-name"
+                        value={formData.company_name}
+                        onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                        required
+                        className="h-12 rounded-xl"
+                        placeholder="Acme Private Limited"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="company_email">Company Email *</Label>
+                      <Input
+                        id="company_email"
+                        type="email"
+                        data-testid="input-company-email"
+                        value={formData.company_email}
+                        onChange={(e) => setFormData({ ...formData, company_email: e.target.value })}
+                        required
+                        className="h-12 rounded-xl"
+                        placeholder="contact@acmecorp.in"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="company_pan">Company PAN *</Label>
+                      <Input
+                        id="company_pan"
+                        data-testid="input-company-pan"
+                        value={formData.company_pan}
+                        onChange={(e) => setFormData({ ...formData, company_pan: e.target.value.toUpperCase() })}
+                        required
+                        maxLength={10}
+                        className="h-12 rounded-xl font-mono"
+                        placeholder="AABCA1234C"
+                      />
+                      <p className="text-xs text-muted-foreground">10-character Permanent Account Number</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="company_tan">Company TAN *</Label>
+                      <Input
+                        id="company_tan"
+                        data-testid="input-company-tan"
+                        value={formData.company_tan}
+                        onChange={(e) => setFormData({ ...formData, company_tan: e.target.value.toUpperCase() })}
+                        required
+                        maxLength={10}
+                        className="h-12 rounded-xl font-mono"
+                        placeholder="MUMA12345C"
+                      />
+                      <p className="text-xs text-muted-foreground">10-character Tax Deduction Account Number</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="company_cin">Company CIN</Label>
+                      <Input
+                        id="company_cin"
+                        data-testid="input-company-cin"
+                        value={formData.company_cin}
+                        onChange={(e) => setFormData({ ...formData, company_cin: e.target.value.toUpperCase() })}
+                        maxLength={21}
+                        className="h-12 rounded-xl font-mono"
+                        placeholder="U72200MH2020PTC123456"
+                      />
+                      <p className="text-xs text-muted-foreground">21-character Corporate Identification Number (MCA)</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="company_website">Company Website</Label>
+                      <Input
+                        id="company_website"
+                        type="url"
+                        data-testid="input-company-website"
+                        value={formData.company_website}
+                        onChange={(e) => setFormData({ ...formData, company_website: e.target.value })}
+                        className="h-12 rounded-xl"
+                        placeholder="https://acmecorp.in"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="company_address">Registered Address *</Label>
+                    <Textarea
+                      id="company_address"
+                      data-testid="input-company-address"
+                      value={formData.company_address}
+                      onChange={(e) => setFormData({ ...formData, company_address: e.target.value })}
+                      required
+                      className="min-h-[80px] rounded-xl"
+                      placeholder="123 Business Park, Andheri East, Mumbai – 400069, Maharashtra, India"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="company_description">Company Description</Label>
+                    <Textarea
+                      id="company_description"
+                      data-testid="input-company-description"
+                      value={formData.company_description}
+                      onChange={(e) => setFormData({ ...formData, company_description: e.target.value })}
+                      className="min-h-[80px] rounded-xl"
+                      placeholder="Brief description of what the company does..."
+                    />
+                  </div>
+                </div>
+              </Card>
+
               <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="thesis-form">
                 <h2 className="font-serif text-3xl font-normal mb-8">Basic Information</h2>
 
                 <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="company_name">Company Name *</Label>
-                    <Input
-                      id="company_name"
-                      data-testid="input-company-name"
-                      value={formData.company_id}
-                      onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
-                      required
-                      className="h-12 rounded-xl"
-                      placeholder="Enter company name"
-                    />
-                  </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="title">Thesis Title *</Label>
                     <Input

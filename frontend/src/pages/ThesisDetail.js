@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card } from '../components/ui/card';
@@ -145,7 +146,13 @@ const ThesisDetail = () => {
               <h1 className="font-serif text-5xl md:text-6xl font-light tracking-tight mb-4" data-testid="thesis-title">
                 {thesis.title}
               </h1>
-              <div className="flex items-center gap-6 text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
+                {thesis.company_name && (
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4" strokeWidth={1.5} />
+                    <span className="font-medium text-foreground">{thesis.company_name}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" strokeWidth={1.5} />
                   <span>{thesis.geography}</span>
@@ -157,6 +164,72 @@ const ThesisDetail = () => {
               </div>
             </div>
 
+            {/* Company Details */}
+            {thesis.company_name && (
+              <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="company-details-card">
+                <div className="flex items-center gap-3 mb-6">
+                  <Building2 className="h-6 w-6 text-primary" strokeWidth={1.5} />
+                  <h2 className="font-serif text-3xl font-normal">Company Details</h2>
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Company Name</p>
+                    <p className="font-medium">{thesis.company_name}</p>
+                  </div>
+                  {thesis.company_email && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Email</p>
+                      <p className="font-medium">{thesis.company_email}</p>
+                    </div>
+                  )}
+                  {thesis.company_pan && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">PAN</p>
+                      <p className="font-mono">{thesis.company_pan}</p>
+                    </div>
+                  )}
+                  {thesis.company_tan && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">TAN</p>
+                      <p className="font-mono">{thesis.company_tan}</p>
+                    </div>
+                  )}
+                  {thesis.company_cin && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">CIN</p>
+                      <p className="font-mono">{thesis.company_cin}</p>
+                    </div>
+                  )}
+                  {thesis.company_website && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Website</p>
+                      <a
+                        href={thesis.company_website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline flex items-center gap-1"
+                      >
+                        <Link2 className="h-3 w-3" strokeWidth={1.5} />
+                        {thesis.company_website}
+                      </a>
+                    </div>
+                  )}
+                  {thesis.company_address && (
+                    <div className="md:col-span-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Registered Address</p>
+                      <p className="text-muted-foreground">{thesis.company_address}</p>
+                    </div>
+                  )}
+                  {thesis.company_description && (
+                    <div className="md:col-span-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">About the Company</p>
+                      <p className="text-muted-foreground leading-relaxed">{thesis.company_description}</p>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
+
             {/* Overview */}
             <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="overview-card">
               <h2 className="font-serif text-3xl font-normal mb-6">Overview</h2>
@@ -167,7 +240,7 @@ const ThesisDetail = () => {
             <Card className="p-8 md:p-12 rounded-2xl border-border/50 mb-8" data-testid="thesis-content-card">
               <h2 className="font-serif text-3xl font-normal mb-6">Investment Thesis</h2>
               <div className="prose prose-lg max-w-none">
-                <p className="text-base leading-relaxed whitespace-pre-wrap">{thesis.thesis_content}</p>
+                <p className="text-base leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(thesis.thesis_content) }} />
               </div>
             </Card>
 
@@ -178,7 +251,7 @@ const ThesisDetail = () => {
                 <h2 className="font-serif text-3xl font-normal">Risks & Disclosures</h2>
               </div>
               <div className="prose max-w-none">
-                <p className="text-base leading-relaxed whitespace-pre-wrap text-muted-foreground">{thesis.risks}</p>
+                <p className="text-base leading-relaxed whitespace-pre-wrap text-muted-foreground" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(thesis.risks) }} />
               </div>
             </Card>
 
@@ -408,7 +481,7 @@ const ThesisDetail = () => {
                       <p className="text-sm text-muted-foreground mb-2">
                         {new Date(disc.created_at).toLocaleDateString()}
                       </p>
-                      <p className="text-base leading-relaxed">{disc.content}</p>
+                      <p className="text-base leading-relaxed" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(disc.content) }} />
                     </div>
                   ))}
                 </div>
